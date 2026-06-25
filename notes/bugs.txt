@@ -1,1 +1,3 @@
-No known issues
+Duplicate tasks can be created
+
+Validation now prevents duplicate entries.
