@@ -1,1 +1,5 @@
-Task Management
+User Profile
+
+Profile picture support
+
+Profile settings
