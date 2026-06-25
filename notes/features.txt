@@ -1,1 +1,7 @@
 Task Management
+
+Search
+
+- Search by title
+- Search by category
+- Search by keyword
