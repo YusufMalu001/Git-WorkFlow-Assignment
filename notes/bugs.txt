@@ -1,1 +1,1 @@
-No known issues
+Duplicate tasks could be created before validation was added
