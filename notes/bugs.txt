@@ -1,1 +1,7 @@
+<<<<<<< HEAD
 Duplicate tasks could be created before validation was added
+=======
+Duplicate tasks can be created
+
+Validation now prevents duplicate entries.
+>>>>>>> 7f8a6dc6252c45bee6fa88704f03324b53c19e0c
