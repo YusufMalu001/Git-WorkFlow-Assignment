@@ -1,4 +1,2 @@
-Add user authentication
-Add profile management
-Add notifications
-Add task priorities
+Add profile picture support
+Add profile settings page
