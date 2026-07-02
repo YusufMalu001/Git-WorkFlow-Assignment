@@ -1,15 +1,10 @@
-<<<<<<< HEAD
 User Profile
 
 Profile picture support
 
 Profile settings
-=======
-Task Management
+Category: Communication - Add notifications - Add notifications
 
-Search
-
-- Search by title
-- Search by category
-- Search by keyword
->>>>>>> feat/search
+Reporting
+- Generate weekly reports
+- Generate monthly reports
