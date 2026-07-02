@@ -6,6 +6,7 @@ Profile settings
 Category: Communication - Add notifications - Add notifications
 
 Reporting
-- Generate weekly report
-- Generate monthly report
+
+- Generate weekly reports
+- Generate monthly reports
 
