@@ -11,6 +11,7 @@ import { ThemeContext } from "./ThemeContext";
 function TextInput({
   label,
   name,
+  type = "text",
   placeholder = "",
   value = "",
   onChange,
@@ -79,7 +80,7 @@ function TextInput({
         ref={inputRef}
         id={name}
         name={name}
-        type="text"
+        type={type}
         placeholder={placeholder}
         value={inputValue}
         onChange={handleChange}
