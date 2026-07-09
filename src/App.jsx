@@ -21,6 +21,8 @@ function App() {
   });
 
   const [errors, setErrors] = useState({});
+  const [submissions, setSubmissions] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
   const educationOptions = [
     { label: "High School", value: "high_school" },
@@ -72,8 +74,62 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      console.log("User Data:", formData);
-      alert("Form submitted successfully! Check console for data.");
+      if (editingId !== null) {
+        setSubmissions((prev) =>
+          prev.map((sub) =>
+            sub.id === editingId ? { ...formData, id: editingId } : sub
+          )
+        );
+        setEditingId(null);
+        alert("Form updated successfully!");
+      } else {
+        setSubmissions((prev) => [...prev, { ...formData, id: Date.now() }]);
+        alert("Form submitted successfully!");
+      }
+      setFormData({
+        name: "",
+        email: "",
+        dob: "",
+        gender: "",
+        education: "",
+        password: "",
+        confirmPassword: "",
+        profilePic: null,
+      });
+    }
+  };
+
+  const handleEdit = (submission) => {
+    setFormData({
+      name: submission.name,
+      email: submission.email,
+      dob: submission.dob,
+      gender: submission.gender,
+      education: submission.education,
+      password: submission.password,
+      confirmPassword: submission.confirmPassword,
+      profilePic: submission.profilePic,
+    });
+    setEditingId(submission.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this submission?")) {
+      setSubmissions((prev) => prev.filter((sub) => sub.id !== id));
+      if (editingId === id) {
+        setEditingId(null);
+        setFormData({
+          name: "",
+          email: "",
+          dob: "",
+          gender: "",
+          education: "",
+          password: "",
+          confirmPassword: "",
+          profilePic: null,
+        });
+      }
     }
   };
 
@@ -181,10 +237,74 @@ function App() {
                 width: "100%"
               }}
             >
-              Submit
+              {editingId !== null ? "Update" : "Submit"}
             </button>
           </div>
         </form>
+
+        {submissions.length > 0 && (
+          <div style={{ marginTop: "40px" }}>
+            <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Submissions</h2>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ background: "#f2f2f2", color: "#333" }}>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Name</th>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Email</th>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>DOB</th>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Gender</th>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Education</th>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {submissions.map((sub) => (
+                    <tr key={sub.id} style={{ color: "#333" }}>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.name}</td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.email}</td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.dob}</td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.gender}</td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>
+                        {educationOptions.find(opt => opt.value === sub.education)?.label || sub.education}
+                      </td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>
+                        <button
+                          onClick={() => handleEdit(sub)}
+                          style={{
+                            padding: "6px 12px",
+                            background: "#28a745",
+                            color: "#FFF",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            marginRight: "8px"
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(sub.id)}
+                          style={{
+                            padding: "6px 12px",
+                            background: "#dc3545",
+                            color: "#FFF",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontSize: "14px"
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </ThemeProvider>
   );
