@@ -1,74 +1,160 @@
 import { useState } from "react";
-import TextInput from "./components/TextInput";
-import FileInput from "./components/FileInput";
-import DateInput from "./components/DateInput";
-import SelectInput from "./components/SelectInput";
-import RadioGroup from "./components/RadioGroup";
-import RangeInput from "./components/RangeInput";
+
+import { ThemeProvider } from "./ThemeContext";
+
+import TextInput from "./text_input";
+import FileInput from "./file_input";
+import DateInput from "./date_input";
+import SelectInput from "./select_input";
+import RadioGroup from "./radio_group";
+import RangeInput from "./range_input";
 
 function App() {
-  const [name, setName] = useState("");
-  const [date, setDate] = useState("");
+  // Text Input
+  const [username, setUsername] = useState("");
+
+  // Date
+  const [dob, setDob] = useState("");
+
+  // Country
   const [country, setCountry] = useState("");
+
+  // Gender
   const [gender, setGender] = useState("");
-  const [age, setAge] = useState(18);
+
+  // Volume
+  const [volume, setVolume] = useState(50);
+
+  // Dropdown Options
+  const countries = [
+    {
+      label: "India",
+      value: "india",
+    },
+    {
+      label: "United States",
+      value: "usa",
+    },
+    {
+      label: "United Kingdom",
+      value: "uk",
+    },
+    {
+      label: "Japan",
+      value: "japan",
+    },
+  ];
+
+  // Radio Options
+  const genders = [
+    {
+      label: "Male",
+      value: "male",
+    },
+    {
+      label: "Female",
+      value: "female",
+    },
+    {
+      label: "Other",
+      value: "other",
+    },
+  ];
 
   return (
-    <div style={{ padding: "20px" }}>
-      <TextInput
-        label="Name"
-        name="name"
-        value={name}
-        placeholder="Enter your name"
-        onChange={(e) => setName(e.target.value)}
-      />
+    <ThemeProvider>
+      <div
+        style={{
+          maxWidth: "700px",
+          margin: "30px auto",
+          fontFamily: "Arial",
+        }}
+      >
+        <h1>Reusable Form Components</h1>
 
-      <FileInput
-        label="Upload Resume"
-        name="resume"
-        onChange={(e) => console.log(e.target.files[0])}
-      />
+        <TextInput
+          label="Username"
+          name="username"
+          placeholder="Enter Username"
+          value={username}
+          onChange={(e) =>
+            setUsername(e.target.value)
+          }
+        />
 
-      <DateInput
-        label="Date of Birth"
-        name="dob"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-      />
+        <FileInput
+          label="Upload Resume"
+          name="resume"
+          accept=".pdf,.doc,.docx"
+          multiple={false}
+        />
 
-      <SelectInput
-        label="Country"
-        name="country"
-        value={country}
-        onChange={(e) => setCountry(e.target.value)}
-        options={[
-          { value: "india", label: "India" },
-          { value: "usa", label: "USA" },
-          { value: "uk", label: "United Kingdom" }
-        ]}
-      />
+        <DateInput
+          label="Date of Birth"
+          name="dob"
+          value={dob}
+          onChange={(e) =>
+            setDob(e.target.value)
+          }
+        />
 
-      <RadioGroup
-        label="Gender"
-        name="gender"
-        selectedValue={gender}
-        onChange={(e) => setGender(e.target.value)}
-        options={[
-          { value: "male", label: "Male" },
-          { value: "female", label: "Female" },
-          { value: "other", label: "Other" }
-        ]}
-      />
+        <SelectInput
+          label="Country"
+          name="country"
+          value={country}
+          options={countries}
+          onChange={(e) =>
+            setCountry(e.target.value)
+          }
+        />
 
-      <RangeInput
-        label="Age"
-        value={age}
-        min={18}
-        max={100}
-        step={1}
-        onChange={(e) => setAge(e.target.value)}
-      />
-    </div>
+        <RadioGroup
+          label="Gender"
+          name="gender"
+          value={gender}
+          options={genders}
+          onChange={(e) =>
+            setGender(e.target.value)
+          }
+        />
+
+        <RangeInput
+          label="Volume"
+          name="volume"
+          value={volume}
+          min={0}
+          max={100}
+          step={1}
+          onChange={(e) =>
+            setVolume(Number(e.target.value))
+          }
+        />
+
+        <hr />
+
+        <h2>Form Summary</h2>
+
+        <p>
+          <strong>Name:</strong> {username}
+        </p>
+
+        <p>
+          <strong>Date of Birth:</strong> {dob}
+        </p>
+
+        <p>
+          <strong>Country:</strong> {country}
+        </p>
+
+        <p>
+          <strong>Gender:</strong> {gender}
+        </p>
+
+        <p>
+          <strong>Volume:</strong> {volume}
+        </p>
+      </div>
+    </ThemeProvider>
   );
 }
 
