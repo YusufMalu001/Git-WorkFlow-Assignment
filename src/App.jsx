@@ -17,30 +17,6 @@ function App() {
   const [submissions, setSubmissions] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
-  const [filterGender, setFilterGender] = useState("all");
-  const [actionMenuId, setActionMenuId] = useState(null);
-  const [viewingSubmission, setViewingSubmission] = useState(null);
-
-  const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
-  const [isChangingFieldNames, setIsChangingFieldNames] = useState(false);
-  const [isSelectingFields, setIsSelectingFields] = useState(false);
-  
-  const [columnNames, setColumnNames] = useState({
-    id: "ID",
-    name: "Name",
-    gender: "Gender",
-    education: "Education",
-    email: "Email"
-  });
-  
-  const [visibleColumns, setVisibleColumns] = useState({
-    id: true,
-    name: true,
-    gender: true,
-    education: true,
-    email: true
-  });
-
   const educationOptions = [
     { label: "High School", value: "high_school" },
     { label: "Bachelor's Degree", value: "bachelors" },
@@ -106,12 +82,46 @@ function App() {
         name: "",
         email: "",
         dob: "",
-        gender: "male",
-        education: "high_school",
+        gender: "",
+        education: "",
         password: "",
         confirmPassword: "",
         profilePic: null,
       });
+    }
+  };
+
+  const handleEdit = (submission) => {
+    setFormData({
+      name: submission.name,
+      email: submission.email,
+      dob: submission.dob,
+      gender: submission.gender,
+      education: submission.education,
+      password: submission.password,
+      confirmPassword: submission.confirmPassword,
+      profilePic: submission.profilePic,
+    });
+    setEditingId(submission.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this submission?")) {
+      setSubmissions((prev) => prev.filter((sub) => sub.id !== id));
+      if (editingId === id) {
+        setEditingId(null);
+        setFormData({
+          name: "",
+          email: "",
+          dob: "",
+          gender: "",
+          education: "",
+          password: "",
+          confirmPassword: "",
+          profilePic: null,
+        });
+      }
     }
   };
 
@@ -296,159 +306,90 @@ function App() {
             </div>
           </section>
 
-          {/* Right Panel: Data Table */}
-          <section className="w-1/2 h-full flex flex-col p-lg">
-            <div className="glass-panel flex-1 rounded-xl overflow-hidden flex flex-col">
-              <div className="p-lg border-b border-outline-variant/30 flex justify-between items-center bg-surface-container/50">
-                <div>
-                  <h3 className="font-headline-md text-on-surface">ENTITY_LOG_001</h3>
-                  <p className="font-data-mono text-[11px] text-on-surface-variant mt-xs">TOTAL_NODES: {filteredSubmissions.length} | STATUS: OPTIMIZED</p>
-                </div>
-                <div className="flex gap-sm">
-                  <div className="relative">
-                    <select
-                      className="px-4 py-2 pl-8 appearance-none bg-surface-container border border-outline-variant text-on-surface font-label-caps text-[12px] hover:bg-surface-variant transition-colors focus:outline-none focus:ring-0 focus:border-primary rounded cursor-pointer"
-                      value={filterGender}
-                      onChange={(e) => setFilterGender(e.target.value)}
-                    >
-                      <option value="all">FILTER: ALL</option>
-                      <option value="male">MALE</option>
-                      <option value="female">FEMALE</option>
-                    </select>
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] pointer-events-none">filter_alt</span>
-                  </div>
-                  <button className="px-4 py-2 bg-surface-container border border-outline-variant text-on-surface font-label-caps text-[12px] hover:bg-surface-variant transition-colors flex items-center gap-2 rounded">
-                    <span className="material-symbols-outlined text-[18px]">file_download</span>
-                    EXPORT
-                  </button>
-                </div>
-              </div>
-              <div className="flex-1 overflow-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead className="sticky top-0 z-10 bg-[#1e293b] shadow-sm">
-                    <tr>
-                      {visibleColumns.id && <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">{columnNames.id}</th>}
-                      {visibleColumns.name && <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">{columnNames.name}</th>}
-                      {visibleColumns.gender && <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">{columnNames.gender}</th>}
-                      {visibleColumns.education && <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">{columnNames.education}</th>}
-                      {visibleColumns.email && <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">{columnNames.email}</th>}
-                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant text-right relative">
-                        <button onClick={(e) => { e.stopPropagation(); setHeaderMenuOpen(!headerMenuOpen); }} className="p-1 hover:text-primary transition-colors">
-                          <span className="material-symbols-outlined text-[18px]">more_vert</span>
+          <div style={{ textAlign: "center", marginTop: "30px" }}>
+            <button
+              type="submit"
+              style={{
+                padding: "12px 24px",
+                background: "#007BFF",
+                color: "#FFF",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontSize: "16px",
+                width: "100%"
+              }}
+            >
+              {editingId !== null ? "Update" : "Submit"}
+            </button>
+          </div>
+        </form>
+
+        {submissions.length > 0 && (
+          <div style={{ marginTop: "40px" }}>
+            <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Submissions</h2>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ background: "#f2f2f2", color: "#333" }}>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Name</th>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Email</th>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>DOB</th>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Gender</th>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Education</th>
+                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {submissions.map((sub) => (
+                    <tr key={sub.id} style={{ color: "#333" }}>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.name}</td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.email}</td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.dob}</td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.gender}</td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>
+                        {educationOptions.find(opt => opt.value === sub.education)?.label || sub.education}
+                      </td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>
+                        <button
+                          onClick={() => handleEdit(sub)}
+                          style={{
+                            padding: "6px 12px",
+                            background: "#28a745",
+                            color: "#FFF",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            marginRight: "8px"
+                          }}
+                        >
+                          Edit
                         </button>
-                        
-                        {headerMenuOpen && (
-                          <div className="absolute right-0 top-full mt-1 z-50 bg-surface-container border border-outline-variant rounded-lg shadow-lg flex flex-col py-1 min-w-[240px]">
-                            <button 
-                              type="button" 
-                              onClick={(e) => { e.stopPropagation(); setIsChangingFieldNames(true); setHeaderMenuOpen(false); }} 
-                              className="px-4 py-2 text-left font-body-sm text-on-surface hover:bg-surface-variant transition-colors flex items-center gap-2"
-                            >
-                              <span className="material-symbols-outlined text-[16px]">edit_note</span> Change field name
-                            </button>
-                            <button 
-                              type="button" 
-                              onClick={(e) => { e.stopPropagation(); setIsSelectingFields(true); setHeaderMenuOpen(false); }} 
-                              className="px-4 py-2 text-left font-body-sm text-on-surface hover:bg-surface-variant transition-colors flex items-center gap-2"
-                            >
-                              <span className="material-symbols-outlined text-[16px]">checklist</span> Select fields to display
-                            </button>
-                          </div>
-                        )}
-                      </th>
+                        <button
+                          onClick={() => handleDelete(sub.id)}
+                          style={{
+                            padding: "6px 12px",
+                            background: "#dc3545",
+                            color: "#FFF",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontSize: "14px"
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="font-data-mono text-on-surface">
-                    {filteredSubmissions.length === 0 ? (
-                      <tr>
-                        <td colSpan={Object.values(visibleColumns).filter(Boolean).length + 1} className="p-xl text-center text-on-surface-variant">No entities found.</td>
-                      </tr>
-                    ) : (
-                      filteredSubmissions.map((sub) => (
-                        <tr key={sub.id} className="hover:bg-primary/10 transition-colors group cursor-pointer relative">
-                          {visibleColumns.id && <td className="p-md border-b border-outline-variant/20 text-primary opacity-80">#{sub.id.toString().slice(-4)}</td>}
-                          {visibleColumns.name && (
-                            <td className="p-md border-b border-outline-variant/20">
-                              <div className="flex items-center gap-md">
-                                <div className="w-2 h-2 rounded-full bg-primary pulse-active"></div>
-                                <span>{sub.name}</span>
-                              </div>
-                            </td>
-                          )}
-                          {visibleColumns.gender && (
-                            <td className="p-md border-b border-outline-variant/20 text-on-surface-variant">
-                              {sub.gender.charAt(0).toUpperCase() + sub.gender.slice(1)}
-                            </td>
-                          )}
-                          {visibleColumns.education && (
-                            <td className="p-md border-b border-outline-variant/20">
-                              <span className="px-2 py-0.5 bg-secondary-container/20 text-on-secondary-container rounded text-[11px]">
-                                {educationOptions.find((opt) => opt.value === sub.education)?.label.toUpperCase() || sub.education.toUpperCase()}
-                              </span>
-                            </td>
-                          )}
-                          {visibleColumns.email && <td className="p-md border-b border-outline-variant/20 text-on-surface-variant">{sub.email}</td>}
-                          <td className="p-md border-b border-outline-variant/20 text-right relative">
-                            <button 
-                              type="button" 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActionMenuId(actionMenuId === sub.id ? null : sub.id);
-                              }} 
-                              className="p-1 hover:text-primary transition-colors"
-                            >
-                              <span className="material-symbols-outlined text-[20px]">more_vert</span>
-                            </button>
-                            
-                            {actionMenuId === sub.id && (
-                              <div className="absolute right-6 top-1/2 -translate-y-1/2 z-50 bg-surface-container border border-outline-variant rounded-lg shadow-lg flex flex-col py-1 min-w-[120px]">
-                                <button 
-                                  type="button" 
-                                  onClick={(e) => { e.stopPropagation(); setViewingSubmission(sub); setActionMenuId(null); }} 
-                                  className="px-4 py-2 text-left font-body-sm text-on-surface hover:bg-surface-variant transition-colors flex items-center gap-2"
-                                >
-                                  <span className="material-symbols-outlined text-[16px]">visibility</span> View
-                                </button>
-                                <button 
-                                  type="button" 
-                                  onClick={(e) => { e.stopPropagation(); handleEdit(sub); setActionMenuId(null); }} 
-                                  className="px-4 py-2 text-left font-body-sm text-on-surface hover:bg-surface-variant transition-colors flex items-center gap-2"
-                                >
-                                  <span className="material-symbols-outlined text-[16px]">edit</span> Edit
-                                </button>
-                                <button 
-                                  type="button" 
-                                  onClick={(e) => { e.stopPropagation(); handleDelete(sub.id); setActionMenuId(null); }} 
-                                  className="px-4 py-2 text-left font-body-sm text-error hover:bg-surface-variant transition-colors flex items-center gap-2"
-                                >
-                                  <span className="material-symbols-outlined text-[16px]">delete</span> Delete
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              <div className="p-md bg-surface-container-low border-t border-outline-variant/30 flex justify-between items-center px-lg">
-                <span className="font-data-mono text-[11px] text-on-surface-variant">PAGE_01_OF_01</span>
-                <div className="flex gap-xs">
-                  <button className="w-8 h-8 flex items-center justify-center border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors active:scale-95">
-                    <span className="material-symbols-outlined text-[18px]">chevron_left</span>
-                  </button>
-                  <button className="w-8 h-8 flex items-center justify-center bg-primary text-on-primary font-data-mono text-[11px]">01</button>
-                  <button className="w-8 h-8 flex items-center justify-center border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors active:scale-95">
-                    <span className="material-symbols-outlined text-[18px]">chevron_right</span>
-                  </button>
-                </div>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </section>
-        </main>
+          </div>
+        )}
       </div>
-      
+
       {/* View Modal Overlay */}
       {viewingSubmission && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setViewingSubmission(null)}>
@@ -468,8 +409,8 @@ function App() {
               <p><strong className="text-on-surface-variant">Education:</strong> {educationOptions.find(o => o.value === viewingSubmission.education)?.label}</p>
             </div>
             <div className="mt-xl pt-lg border-t border-outline-variant/30 text-right">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setViewingSubmission(null)}
                 className="px-6 py-2 bg-surface-variant border border-outline-variant font-label-caps text-on-surface rounded-lg hover:bg-surface-bright transition-colors"
               >
@@ -494,18 +435,18 @@ function App() {
               {Object.entries(columnNames).map(([key, value]) => (
                 <div key={key} className="flex flex-col gap-1">
                   <label className="font-label-caps text-[10px] text-on-surface-variant uppercase">{key}</label>
-                  <input 
-                    type="text" 
-                    value={value} 
-                    onChange={(e) => setColumnNames(prev => ({...prev, [key]: e.target.value}))}
+                  <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => setColumnNames(prev => ({ ...prev, [key]: e.target.value }))}
                     className="w-full bg-surface-container-lowest/50 border border-outline-variant rounded p-3 text-body-md font-data-mono text-primary focus:border-primary focus:ring-0 transition-all"
                   />
                 </div>
               ))}
             </div>
             <div className="mt-xl pt-lg border-t border-outline-variant/30 text-right">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setIsChangingFieldNames(false)}
                 className="px-6 py-2 bg-primary text-on-primary font-label-caps rounded-lg hover:bg-primary/90 transition-colors"
               >
@@ -532,19 +473,19 @@ function App() {
                   <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isVisible ? 'bg-primary border-primary' : 'border-outline-variant bg-surface-container-lowest/50 group-hover:border-primary/50'}`}>
                     {isVisible && <span className="material-symbols-outlined text-[14px] text-on-primary">check</span>}
                   </div>
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     className="hidden"
                     checked={isVisible}
-                    onChange={(e) => setVisibleColumns(prev => ({...prev, [key]: e.target.checked}))}
+                    onChange={(e) => setVisibleColumns(prev => ({ ...prev, [key]: e.target.checked }))}
                   />
                   <span className="font-data-mono text-on-surface">{columnNames[key]}</span>
                 </label>
               ))}
             </div>
             <div className="mt-xl pt-lg border-t border-outline-variant/30 text-right">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setIsSelectingFields(false)}
                 className="px-6 py-2 bg-primary text-on-primary font-label-caps rounded-lg hover:bg-primary/90 transition-colors"
               >
