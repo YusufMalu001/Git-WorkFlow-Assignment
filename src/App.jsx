@@ -1,20 +1,13 @@
 import { useState } from "react";
-
 import { ThemeProvider } from "./ThemeContext";
-
-import TextInput from "./components/text_input";
-import FileInput from "./components/file_input";
-import DateInput from "./components/date_input";
-import SelectInput from "./components/select_input";
-import RadioGroup from "./components/radio_group";
 
 function App() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     dob: "",
-    gender: "",
-    education: "",
+    gender: "male",
+    education: "high_school",
     password: "",
     confirmPassword: "",
     profilePic: null,
@@ -39,7 +32,6 @@ function App() {
 
   const handleChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -90,8 +82,8 @@ function App() {
         name: "",
         email: "",
         dob: "",
-        gender: "",
-        education: "",
+        gender: "male",
+        education: "high_school",
         password: "",
         confirmPassword: "",
         profilePic: null,
@@ -111,7 +103,6 @@ function App() {
       profilePic: submission.profilePic,
     });
     setEditingId(submission.id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = (id) => {
@@ -123,8 +114,8 @@ function App() {
           name: "",
           email: "",
           dob: "",
-          gender: "",
-          education: "",
+          gender: "male",
+          education: "high_school",
           password: "",
           confirmPassword: "",
           profilePic: null,
@@ -135,176 +126,229 @@ function App() {
 
   return (
     <ThemeProvider>
-      <div
-        style={{
-          maxWidth: "700px",
-          margin: "30px auto",
-          fontFamily: "Arial",
-          padding: "20px",
-          borderRadius: "8px",
-          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-          background: "#fff"
-        }}
-      >
-        <h1 style={{ textAlign: "center", marginBottom: "30px" }}>User Registration Form</h1>
+      <div className="h-screen w-full bg-surface overflow-hidden">
+        <main className="flex h-full w-full">
+          {/* Left Panel: Registration Form */}
+          <section className="w-1/2 h-full flex flex-col p-lg border-r border-outline-variant/30">
+            <div className="glass-panel flex-1 flex flex-col p-xl overflow-y-auto rounded-xl">
+              <div className="flex items-center justify-between mb-xl">
+                <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">ENTITY_REGISTRATION</h2>
+                <span className="font-label-caps text-[12px] bg-primary/10 text-primary px-3 py-1 border border-primary/20 rounded">SECURE_CHANNEL</span>
+              </div>
+              <form className="space-y-xl" onSubmit={handleSubmit}>
+                <div className="space-y-sm">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant">NAME</label>
+                  <input
+                    className="w-full bg-surface-container-lowest/50 border border-outline-variant rounded-lg p-4 text-body-md font-data-mono text-primary focus:border-primary focus:ring-0 transition-all"
+                    placeholder="Enter full name..."
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => handleChange("name", e.target.value)}
+                  />
+                  {errors.name && <p className="text-error text-sm mt-1">{errors.name}</p>}
+                </div>
 
-        <form onSubmit={handleSubmit}>
-          <TextInput
-            label="Name"
-            name="name"
-            placeholder="Enter Name"
-            value={formData.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-          />
-          {errors.name && <div style={{ color: "red", marginTop: "-15px", marginBottom: "15px", marginLeft: "15px" }}>{errors.name}</div>}
+                <div className="space-y-sm">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant">EMAIL</label>
+                  <div className="relative">
+                    <input
+                      className="w-full bg-surface-container-lowest/50 border border-outline-variant rounded-lg p-4 pl-12 text-body-md font-data-mono text-on-surface focus:border-primary focus:ring-0 transition-all"
+                      placeholder="node@network.sync"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleChange("email", e.target.value)}
+                    />
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline-variant">alternate_email</span>
+                  </div>
+                  {errors.email && <p className="text-error text-sm mt-1">{errors.email}</p>}
+                </div>
 
-          <TextInput
-            label="Email"
-            name="email"
-            type="email"
-            placeholder="Enter Email"
-            value={formData.email}
-            onChange={(e) => handleChange("email", e.target.value)}
-          />
-          {errors.email && <div style={{ color: "red", marginTop: "-15px", marginBottom: "15px", marginLeft: "15px" }}>{errors.email}</div>}
+                <div className="space-y-sm">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant">DATE OF BIRTH</label>
+                  <input
+                    className="w-full bg-surface-container-lowest/50 border border-outline-variant rounded-lg p-4 text-body-md font-data-mono text-primary focus:border-primary focus:ring-0 transition-all"
+                    type="date"
+                    value={formData.dob}
+                    onChange={(e) => handleChange("dob", e.target.value)}
+                  />
+                  {errors.dob && <p className="text-error text-sm mt-1">{errors.dob}</p>}
+                </div>
 
-          <DateInput
-            label="Date of Birth"
-            name="dob"
-            value={formData.dob}
-            onChange={(e) => handleChange("dob", e.target.value)}
-          />
-          {errors.dob && <div style={{ color: "red", marginTop: "-15px", marginBottom: "15px", marginLeft: "15px" }}>{errors.dob}</div>}
+                <div className="space-y-sm">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant">GENDER</label>
+                  <div className="grid grid-cols-3 gap-md">
+                    {genders.map((g) => (
+                      <label key={g.value} className="flex items-center gap-md p-4 bg-surface-container-lowest/30 border border-outline-variant rounded-lg cursor-pointer hover:border-primary/50 transition-all group">
+                        <input
+                          className="text-primary focus:ring-0 bg-transparent border-outline-variant"
+                          name="gender"
+                          type="radio"
+                          value={g.value}
+                          checked={formData.gender === g.value}
+                          onChange={(e) => handleChange("gender", e.target.value)}
+                        />
+                        <span className="font-label-caps text-label-caps text-on-surface-variant group-hover:text-on-surface transition-colors">{g.label.toUpperCase()}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {errors.gender && <p className="text-error text-sm mt-1">{errors.gender}</p>}
+                </div>
 
-          <RadioGroup
-            label="Gender"
-            name="gender"
-            value={formData.gender}
-            options={genders}
-            onChange={(e) => handleChange("gender", e.target.value)}
-          />
-          {errors.gender && <div style={{ color: "red", marginTop: "-15px", marginBottom: "15px", marginLeft: "15px" }}>{errors.gender}</div>}
+                <div className="space-y-sm">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant">PROFILE PICTURE</label>
+                  <input
+                    className="w-full bg-surface-container-lowest/50 border border-outline-variant rounded-lg p-4 text-body-md font-data-mono text-primary focus:border-primary focus:ring-0 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                  {errors.profilePic && <p className="text-error text-sm mt-1">{errors.profilePic}</p>}
+                </div>
 
-          <FileInput
-            label="Profile Pic"
-            name="profilePic"
-            accept="image/*"
-            multiple={false}
-            onChange={handleFileChange}
-          />
-          {errors.profilePic && <div style={{ color: "red", marginTop: "-15px", marginBottom: "15px", marginLeft: "15px" }}>{errors.profilePic}</div>}
+                <div className="space-y-sm">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant">EDUCATION LEVEL</label>
+                  <select
+                    className="w-full bg-surface-container-lowest/50 border border-outline-variant rounded-lg p-4 text-body-md font-data-mono text-on-surface focus:border-primary focus:ring-0 appearance-none transition-all"
+                    value={formData.education}
+                    onChange={(e) => handleChange("education", e.target.value)}
+                  >
+                    <option value="" disabled>SELECT_LEVEL</option>
+                    {educationOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label.toUpperCase()}</option>
+                    ))}
+                  </select>
+                  {errors.education && <p className="text-error text-sm mt-1">{errors.education}</p>}
+                </div>
 
-          <SelectInput
-            label="Level of Education"
-            name="education"
-            value={formData.education}
-            options={educationOptions}
-            onChange={(e) => handleChange("education", e.target.value)}
-          />
-          {errors.education && <div style={{ color: "red", marginTop: "-15px", marginBottom: "15px", marginLeft: "15px" }}>{errors.education}</div>}
+                <div className="space-y-sm">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant">PASSWORD</label>
+                  <input
+                    className="w-full bg-surface-container-lowest/50 border border-outline-variant rounded-lg p-4 text-body-md font-data-mono text-primary focus:border-primary focus:ring-0 transition-all"
+                    placeholder="Enter secure key..."
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => handleChange("password", e.target.value)}
+                  />
+                  {errors.password && <p className="text-error text-sm mt-1">{errors.password}</p>}
+                </div>
 
-          <TextInput
-            label="Password"
-            name="password"
-            type="password"
-            placeholder="Enter Password"
-            value={formData.password}
-            onChange={(e) => handleChange("password", e.target.value)}
-          />
-          {errors.password && <div style={{ color: "red", marginTop: "-15px", marginBottom: "15px", marginLeft: "15px" }}>{errors.password}</div>}
+                <div className="space-y-sm">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant">CONFIRM PASSWORD</label>
+                  <input
+                    className="w-full bg-surface-container-lowest/50 border border-outline-variant rounded-lg p-4 text-body-md font-data-mono text-primary focus:border-primary focus:ring-0 transition-all"
+                    placeholder="Verify secure key..."
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                  />
+                  {errors.confirmPassword && <p className="text-error text-sm mt-1">{errors.confirmPassword}</p>}
+                </div>
 
-          <TextInput
-            label="Confirm Password"
-            name="confirmPassword"
-            type="password"
-            placeholder="Confirm Password"
-            value={formData.confirmPassword}
-            onChange={(e) => handleChange("confirmPassword", e.target.value)}
-          />
-          {errors.confirmPassword && <div style={{ color: "red", marginTop: "-15px", marginBottom: "15px", marginLeft: "15px" }}>{errors.confirmPassword}</div>}
-
-          <div style={{ textAlign: "center", marginTop: "30px" }}>
-            <button
-              type="submit"
-              style={{
-                padding: "12px 24px",
-                background: "#007BFF",
-                color: "#FFF",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontSize: "16px",
-                width: "100%"
-              }}
-            >
-              {editingId !== null ? "Update" : "Submit"}
-            </button>
-          </div>
-        </form>
-
-        {submissions.length > 0 && (
-          <div style={{ marginTop: "40px" }}>
-            <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Submissions</h2>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#f2f2f2", color: "#333" }}>
-                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Name</th>
-                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Email</th>
-                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>DOB</th>
-                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Gender</th>
-                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Education</th>
-                    <th style={{ padding: "12px", border: "1px solid #ddd" }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {submissions.map((sub) => (
-                    <tr key={sub.id} style={{ color: "#333" }}>
-                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.name}</td>
-                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.email}</td>
-                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.dob}</td>
-                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{sub.gender}</td>
-                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>
-                        {educationOptions.find(opt => opt.value === sub.education)?.label || sub.education}
-                      </td>
-                      <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>
-                        <button
-                          onClick={() => handleEdit(sub)}
-                          style={{
-                            padding: "6px 12px",
-                            background: "#28a745",
-                            color: "#FFF",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                            marginRight: "8px"
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(sub.id)}
-                          style={{
-                            padding: "6px 12px",
-                            background: "#dc3545",
-                            color: "#FFF",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            fontSize: "14px"
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                <div className="pt-xl border-t border-outline-variant/30">
+                  <button
+                    className="w-full bg-primary text-on-primary font-label-caps text-label-caps py-5 rounded-lg flex items-center justify-center gap-3 neon-glow hover:translate-y-[-2px] transition-all active:translate-y-0 active:scale-95"
+                    type="submit"
+                  >
+                    <span className="material-symbols-outlined">database_upload</span>
+                    {editingId !== null ? "UPDATE_REGISTRY" : "INITIALIZE_REGISTRY"}
+                  </button>
+                </div>
+              </form>
+              <div className="mt-xl">
+                <div className="p-lg bg-primary-container/10 border border-primary-container/20 rounded-lg">
+                  <div className="flex gap-md">
+                    <span className="material-symbols-outlined text-primary-container">info</span>
+                    <p className="text-body-md text-on-surface-variant leading-relaxed">
+                      Ensure all entity parameters align with the <span className="text-primary underline cursor-pointer">Protocol Guidelines v.4.0</span>. Mismatched headers will trigger a system-wide isolation event.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          </section>
+
+          {/* Right Panel: Data Table */}
+          <section className="w-1/2 h-full flex flex-col p-lg">
+            <div className="glass-panel flex-1 rounded-xl overflow-hidden flex flex-col">
+              <div className="p-lg border-b border-outline-variant/30 flex justify-between items-center bg-surface-container/50">
+                <div>
+                  <h3 className="font-headline-md text-on-surface">ENTITY_LOG_001</h3>
+                  <p className="font-data-mono text-[11px] text-on-surface-variant mt-xs">TOTAL_NODES: {submissions.length} | STATUS: OPTIMIZED</p>
+                </div>
+                <div className="flex gap-sm">
+                  <button className="px-4 py-2 bg-surface-container border border-outline-variant text-on-surface font-label-caps text-[12px] hover:bg-surface-variant transition-colors flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">filter_alt</span>
+                    FILTER
+                  </button>
+                  <button className="px-4 py-2 bg-surface-container border border-outline-variant text-on-surface font-label-caps text-[12px] hover:bg-surface-variant transition-colors flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">file_download</span>
+                    EXPORT
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead className="sticky top-0 z-10 bg-[#1e293b] shadow-sm">
+                    <tr>
+                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">ID</th>
+                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">ENTITY (NAME)</th>
+                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">ROLE (EDU)</th>
+                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">COMM (EMAIL)</th>
+                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant text-right">ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody className="font-data-mono text-on-surface">
+                    {submissions.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="p-xl text-center text-on-surface-variant">No entities registered yet.</td>
+                      </tr>
+                    ) : (
+                      submissions.map((sub) => (
+                        <tr key={sub.id} className="hover:bg-primary/10 transition-colors group cursor-pointer">
+                          <td className="p-md border-b border-outline-variant/20 text-primary opacity-80">#{sub.id.toString().slice(-4)}</td>
+                          <td className="p-md border-b border-outline-variant/20">
+                            <div className="flex items-center gap-md">
+                              <div className="w-2 h-2 rounded-full bg-primary pulse-active"></div>
+                              <span>{sub.name}</span>
+                            </div>
+                          </td>
+                          <td className="p-md border-b border-outline-variant/20">
+                            <span className="px-2 py-0.5 bg-secondary-container/20 text-on-secondary-container rounded text-[11px]">
+                              {educationOptions.find((opt) => opt.value === sub.education)?.label.toUpperCase() || sub.education.toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="p-md border-b border-outline-variant/20 text-on-surface-variant">{sub.email}</td>
+                          <td className="p-md border-b border-outline-variant/20 text-right">
+                            <div className="flex justify-end gap-sm">
+                              <button type="button" onClick={() => handleEdit(sub)} className="p-1 hover:text-primary transition-colors">
+                                <span className="material-symbols-outlined text-[20px]">edit</span>
+                              </button>
+                              <button type="button" onClick={() => handleDelete(sub.id)} className="p-1 hover:text-error transition-colors">
+                                <span className="material-symbols-outlined text-[20px]">delete</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className="p-md bg-surface-container-low border-t border-outline-variant/30 flex justify-between items-center px-lg">
+                <span className="font-data-mono text-[11px] text-on-surface-variant">PAGE_01_OF_01</span>
+                <div className="flex gap-xs">
+                  <button className="w-8 h-8 flex items-center justify-center border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors active:scale-95">
+                    <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                  </button>
+                  <button className="w-8 h-8 flex items-center justify-center bg-primary text-on-primary font-data-mono text-[11px]">01</button>
+                  <button className="w-8 h-8 flex items-center justify-center border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors active:scale-95">
+                    <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
       </div>
     </ThemeProvider>
   );
