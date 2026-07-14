@@ -17,6 +17,30 @@ function App() {
   const [submissions, setSubmissions] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
+  const [filterGender, setFilterGender] = useState("all");
+  const [actionMenuId, setActionMenuId] = useState(null);
+  const [viewingSubmission, setViewingSubmission] = useState(null);
+
+  const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
+  const [isChangingFieldNames, setIsChangingFieldNames] = useState(false);
+  const [isSelectingFields, setIsSelectingFields] = useState(false);
+  
+  const [columnNames, setColumnNames] = useState({
+    id: "ID",
+    name: "Name",
+    gender: "Gender",
+    education: "Education",
+    email: "Email"
+  });
+  
+  const [visibleColumns, setVisibleColumns] = useState({
+    id: true,
+    name: true,
+    gender: true,
+    education: true,
+    email: true
+  });
+
   const educationOptions = [
     { label: "High School", value: "high_school" },
     { label: "Bachelor's Degree", value: "bachelors" },
@@ -124,9 +148,14 @@ function App() {
     }
   };
 
+  const filteredSubmissions = submissions.filter((sub) => {
+    if (filterGender === "all") return true;
+    return sub.gender === filterGender;
+  });
+
   return (
     <ThemeProvider>
-      <div className="h-screen w-full bg-surface overflow-hidden">
+      <div className="h-screen w-full bg-surface overflow-hidden" onClick={() => { setActionMenuId(null); setHeaderMenuOpen(false); }}>
         <main className="flex h-full w-full">
           {/* Left Panel: Registration Form */}
           <section className="w-1/2 h-full flex flex-col p-lg border-r border-outline-variant/30">
@@ -250,7 +279,7 @@ function App() {
                     type="submit"
                   >
                     <span className="material-symbols-outlined">database_upload</span>
-                    {editingId !== null ? "UPDATE_REGISTRY" : "INITIALIZE_REGISTRY"}
+                    {editingId !== null ? "Update Form" : "Submit Form"}
                   </button>
                 </div>
               </form>
@@ -273,14 +302,22 @@ function App() {
               <div className="p-lg border-b border-outline-variant/30 flex justify-between items-center bg-surface-container/50">
                 <div>
                   <h3 className="font-headline-md text-on-surface">ENTITY_LOG_001</h3>
-                  <p className="font-data-mono text-[11px] text-on-surface-variant mt-xs">TOTAL_NODES: {submissions.length} | STATUS: OPTIMIZED</p>
+                  <p className="font-data-mono text-[11px] text-on-surface-variant mt-xs">TOTAL_NODES: {filteredSubmissions.length} | STATUS: OPTIMIZED</p>
                 </div>
                 <div className="flex gap-sm">
-                  <button className="px-4 py-2 bg-surface-container border border-outline-variant text-on-surface font-label-caps text-[12px] hover:bg-surface-variant transition-colors flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">filter_alt</span>
-                    FILTER
-                  </button>
-                  <button className="px-4 py-2 bg-surface-container border border-outline-variant text-on-surface font-label-caps text-[12px] hover:bg-surface-variant transition-colors flex items-center gap-2">
+                  <div className="relative">
+                    <select
+                      className="px-4 py-2 pl-8 appearance-none bg-surface-container border border-outline-variant text-on-surface font-label-caps text-[12px] hover:bg-surface-variant transition-colors focus:outline-none focus:ring-0 focus:border-primary rounded cursor-pointer"
+                      value={filterGender}
+                      onChange={(e) => setFilterGender(e.target.value)}
+                    >
+                      <option value="all">FILTER: ALL</option>
+                      <option value="male">MALE</option>
+                      <option value="female">FEMALE</option>
+                    </select>
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] pointer-events-none">filter_alt</span>
+                  </div>
+                  <button className="px-4 py-2 bg-surface-container border border-outline-variant text-on-surface font-label-caps text-[12px] hover:bg-surface-variant transition-colors flex items-center gap-2 rounded">
                     <span className="material-symbols-outlined text-[18px]">file_download</span>
                     EXPORT
                   </button>
@@ -290,43 +327,104 @@ function App() {
                 <table className="w-full text-left border-collapse">
                   <thead className="sticky top-0 z-10 bg-[#1e293b] shadow-sm">
                     <tr>
-                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">ID</th>
-                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">ENTITY (NAME)</th>
-                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">ROLE (EDU)</th>
-                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">COMM (EMAIL)</th>
-                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant text-right">ACTIONS</th>
+                      {visibleColumns.id && <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">{columnNames.id}</th>}
+                      {visibleColumns.name && <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">{columnNames.name}</th>}
+                      {visibleColumns.gender && <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">{columnNames.gender}</th>}
+                      {visibleColumns.education && <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">{columnNames.education}</th>}
+                      {visibleColumns.email && <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">{columnNames.email}</th>}
+                      <th className="p-md font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant text-right relative">
+                        <button onClick={(e) => { e.stopPropagation(); setHeaderMenuOpen(!headerMenuOpen); }} className="p-1 hover:text-primary transition-colors">
+                          <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                        </button>
+                        
+                        {headerMenuOpen && (
+                          <div className="absolute right-0 top-full mt-1 z-50 bg-surface-container border border-outline-variant rounded-lg shadow-lg flex flex-col py-1 min-w-[240px]">
+                            <button 
+                              type="button" 
+                              onClick={(e) => { e.stopPropagation(); setIsChangingFieldNames(true); setHeaderMenuOpen(false); }} 
+                              className="px-4 py-2 text-left font-body-sm text-on-surface hover:bg-surface-variant transition-colors flex items-center gap-2"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">edit_note</span> Change field name
+                            </button>
+                            <button 
+                              type="button" 
+                              onClick={(e) => { e.stopPropagation(); setIsSelectingFields(true); setHeaderMenuOpen(false); }} 
+                              className="px-4 py-2 text-left font-body-sm text-on-surface hover:bg-surface-variant transition-colors flex items-center gap-2"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">checklist</span> Select fields to display
+                            </button>
+                          </div>
+                        )}
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="font-data-mono text-on-surface">
-                    {submissions.length === 0 ? (
+                    {filteredSubmissions.length === 0 ? (
                       <tr>
-                        <td colSpan="5" className="p-xl text-center text-on-surface-variant">No entities registered yet.</td>
+                        <td colSpan={Object.values(visibleColumns).filter(Boolean).length + 1} className="p-xl text-center text-on-surface-variant">No entities found.</td>
                       </tr>
                     ) : (
-                      submissions.map((sub) => (
-                        <tr key={sub.id} className="hover:bg-primary/10 transition-colors group cursor-pointer">
-                          <td className="p-md border-b border-outline-variant/20 text-primary opacity-80">#{sub.id.toString().slice(-4)}</td>
-                          <td className="p-md border-b border-outline-variant/20">
-                            <div className="flex items-center gap-md">
-                              <div className="w-2 h-2 rounded-full bg-primary pulse-active"></div>
-                              <span>{sub.name}</span>
-                            </div>
-                          </td>
-                          <td className="p-md border-b border-outline-variant/20">
-                            <span className="px-2 py-0.5 bg-secondary-container/20 text-on-secondary-container rounded text-[11px]">
-                              {educationOptions.find((opt) => opt.value === sub.education)?.label.toUpperCase() || sub.education.toUpperCase()}
-                            </span>
-                          </td>
-                          <td className="p-md border-b border-outline-variant/20 text-on-surface-variant">{sub.email}</td>
-                          <td className="p-md border-b border-outline-variant/20 text-right">
-                            <div className="flex justify-end gap-sm">
-                              <button type="button" onClick={() => handleEdit(sub)} className="p-1 hover:text-primary transition-colors">
-                                <span className="material-symbols-outlined text-[20px]">edit</span>
-                              </button>
-                              <button type="button" onClick={() => handleDelete(sub.id)} className="p-1 hover:text-error transition-colors">
-                                <span className="material-symbols-outlined text-[20px]">delete</span>
-                              </button>
-                            </div>
+                      filteredSubmissions.map((sub) => (
+                        <tr key={sub.id} className="hover:bg-primary/10 transition-colors group cursor-pointer relative">
+                          {visibleColumns.id && <td className="p-md border-b border-outline-variant/20 text-primary opacity-80">#{sub.id.toString().slice(-4)}</td>}
+                          {visibleColumns.name && (
+                            <td className="p-md border-b border-outline-variant/20">
+                              <div className="flex items-center gap-md">
+                                <div className="w-2 h-2 rounded-full bg-primary pulse-active"></div>
+                                <span>{sub.name}</span>
+                              </div>
+                            </td>
+                          )}
+                          {visibleColumns.gender && (
+                            <td className="p-md border-b border-outline-variant/20 text-on-surface-variant">
+                              {sub.gender.charAt(0).toUpperCase() + sub.gender.slice(1)}
+                            </td>
+                          )}
+                          {visibleColumns.education && (
+                            <td className="p-md border-b border-outline-variant/20">
+                              <span className="px-2 py-0.5 bg-secondary-container/20 text-on-secondary-container rounded text-[11px]">
+                                {educationOptions.find((opt) => opt.value === sub.education)?.label.toUpperCase() || sub.education.toUpperCase()}
+                              </span>
+                            </td>
+                          )}
+                          {visibleColumns.email && <td className="p-md border-b border-outline-variant/20 text-on-surface-variant">{sub.email}</td>}
+                          <td className="p-md border-b border-outline-variant/20 text-right relative">
+                            <button 
+                              type="button" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActionMenuId(actionMenuId === sub.id ? null : sub.id);
+                              }} 
+                              className="p-1 hover:text-primary transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                            </button>
+                            
+                            {actionMenuId === sub.id && (
+                              <div className="absolute right-6 top-1/2 -translate-y-1/2 z-50 bg-surface-container border border-outline-variant rounded-lg shadow-lg flex flex-col py-1 min-w-[120px]">
+                                <button 
+                                  type="button" 
+                                  onClick={(e) => { e.stopPropagation(); setViewingSubmission(sub); setActionMenuId(null); }} 
+                                  className="px-4 py-2 text-left font-body-sm text-on-surface hover:bg-surface-variant transition-colors flex items-center gap-2"
+                                >
+                                  <span className="material-symbols-outlined text-[16px]">visibility</span> View
+                                </button>
+                                <button 
+                                  type="button" 
+                                  onClick={(e) => { e.stopPropagation(); handleEdit(sub); setActionMenuId(null); }} 
+                                  className="px-4 py-2 text-left font-body-sm text-on-surface hover:bg-surface-variant transition-colors flex items-center gap-2"
+                                >
+                                  <span className="material-symbols-outlined text-[16px]">edit</span> Edit
+                                </button>
+                                <button 
+                                  type="button" 
+                                  onClick={(e) => { e.stopPropagation(); handleDelete(sub.id); setActionMenuId(null); }} 
+                                  className="px-4 py-2 text-left font-body-sm text-error hover:bg-surface-variant transition-colors flex items-center gap-2"
+                                >
+                                  <span className="material-symbols-outlined text-[16px]">delete</span> Delete
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       ))
@@ -350,6 +448,112 @@ function App() {
           </section>
         </main>
       </div>
+      
+      {/* View Modal Overlay */}
+      {viewingSubmission && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setViewingSubmission(null)}>
+          <div className="glass-panel p-xl rounded-xl max-w-md w-full border border-outline-variant shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-lg">
+              <h3 className="font-headline-md text-on-surface">Entity Details</h3>
+              <button type="button" onClick={() => setViewingSubmission(null)} className="text-on-surface-variant hover:text-error transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="space-y-md text-body-md font-data-mono">
+              <p><strong className="text-on-surface-variant">ID:</strong> <span className="text-primary">#{viewingSubmission.id.toString().slice(-4)}</span></p>
+              <p><strong className="text-on-surface-variant">Name:</strong> {viewingSubmission.name}</p>
+              <p><strong className="text-on-surface-variant">Email:</strong> {viewingSubmission.email}</p>
+              <p><strong className="text-on-surface-variant">Date of Birth:</strong> {viewingSubmission.dob}</p>
+              <p><strong className="text-on-surface-variant">Gender:</strong> {viewingSubmission.gender.toUpperCase()}</p>
+              <p><strong className="text-on-surface-variant">Education:</strong> {educationOptions.find(o => o.value === viewingSubmission.education)?.label}</p>
+            </div>
+            <div className="mt-xl pt-lg border-t border-outline-variant/30 text-right">
+              <button 
+                type="button" 
+                onClick={() => setViewingSubmission(null)}
+                className="px-6 py-2 bg-surface-variant border border-outline-variant font-label-caps text-on-surface rounded-lg hover:bg-surface-bright transition-colors"
+              >
+                CLOSE
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Change Field Names Modal */}
+      {isChangingFieldNames && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setIsChangingFieldNames(false)}>
+          <div className="glass-panel p-xl rounded-xl max-w-md w-full border border-outline-variant shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-lg">
+              <h3 className="font-headline-md text-on-surface">Change Field Names</h3>
+              <button type="button" onClick={() => setIsChangingFieldNames(false)} className="text-on-surface-variant hover:text-error transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="space-y-md">
+              {Object.entries(columnNames).map(([key, value]) => (
+                <div key={key} className="flex flex-col gap-1">
+                  <label className="font-label-caps text-[10px] text-on-surface-variant uppercase">{key}</label>
+                  <input 
+                    type="text" 
+                    value={value} 
+                    onChange={(e) => setColumnNames(prev => ({...prev, [key]: e.target.value}))}
+                    className="w-full bg-surface-container-lowest/50 border border-outline-variant rounded p-3 text-body-md font-data-mono text-primary focus:border-primary focus:ring-0 transition-all"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mt-xl pt-lg border-t border-outline-variant/30 text-right">
+              <button 
+                type="button" 
+                onClick={() => setIsChangingFieldNames(false)}
+                className="px-6 py-2 bg-primary text-on-primary font-label-caps rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                DONE
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Select Fields Modal */}
+      {isSelectingFields && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setIsSelectingFields(false)}>
+          <div className="glass-panel p-xl rounded-xl max-w-md w-full border border-outline-variant shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-lg">
+              <h3 className="font-headline-md text-on-surface">Select Fields to Display</h3>
+              <button type="button" onClick={() => setIsSelectingFields(false)} className="text-on-surface-variant hover:text-error transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="space-y-md">
+              {Object.entries(visibleColumns).map(([key, isVisible]) => (
+                <label key={key} className="flex items-center gap-3 cursor-pointer group p-2 hover:bg-surface-container-lowest/50 rounded transition-colors">
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isVisible ? 'bg-primary border-primary' : 'border-outline-variant bg-surface-container-lowest/50 group-hover:border-primary/50'}`}>
+                    {isVisible && <span className="material-symbols-outlined text-[14px] text-on-primary">check</span>}
+                  </div>
+                  <input 
+                    type="checkbox" 
+                    className="hidden"
+                    checked={isVisible}
+                    onChange={(e) => setVisibleColumns(prev => ({...prev, [key]: e.target.checked}))}
+                  />
+                  <span className="font-data-mono text-on-surface">{columnNames[key]}</span>
+                </label>
+              ))}
+            </div>
+            <div className="mt-xl pt-lg border-t border-outline-variant/30 text-right">
+              <button 
+                type="button" 
+                onClick={() => setIsSelectingFields(false)}
+                className="px-6 py-2 bg-primary text-on-primary font-label-caps rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                DONE
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </ThemeProvider>
   );
 }
