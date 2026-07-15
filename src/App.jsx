@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { ThemeProvider } from "./ThemeContext";
+import { addSubmission, updateSubmission, deleteSubmission } from "./store/submissionsSlice";
 
 function App() {
   const [formData, setFormData] = useState({
@@ -14,7 +16,8 @@ function App() {
   });
 
   const [errors, setErrors] = useState({});
-  const [submissions, setSubmissions] = useState([]);
+  const submissions = useSelector((state) => state.submissions.list);
+  const dispatch = useDispatch();
   const [editingId, setEditingId] = useState(null);
 
   const [filterGender, setFilterGender] = useState("all");
@@ -91,15 +94,11 @@ function App() {
     e.preventDefault();
     if (validate()) {
       if (editingId !== null) {
-        setSubmissions((prev) =>
-          prev.map((sub) =>
-            sub.id === editingId ? { ...formData, id: editingId } : sub
-          )
-        );
+        dispatch(updateSubmission({ ...formData, id: editingId }));
         setEditingId(null);
         alert("Form updated successfully!");
       } else {
-        setSubmissions((prev) => [...prev, { ...formData, id: Date.now() }]);
+        dispatch(addSubmission({ ...formData, id: Date.now() }));
         alert("Form submitted successfully!");
       }
       setFormData({
@@ -131,7 +130,7 @@ function App() {
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this submission?")) {
-      setSubmissions((prev) => prev.filter((sub) => sub.id !== id));
+      dispatch(deleteSubmission(id));
       if (editingId === id) {
         setEditingId(null);
         setFormData({
